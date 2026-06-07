@@ -1,0 +1,83 @@
+// @net/tcp — TCP networking for Zeta
+// Socket creation via POSIX wrappers, async I/O via @io/uring opcodes.
+// Part of the TigerBeetle dependency chain.
+
+extern fn tcp_socket(domain: i64, ty: i64, protocol: i64) -> i64;
+extern fn tcp_bind(fd: i64, domain: i64, port: i64, addr: i64) -> i64;
+extern fn tcp_listen(fd: i64, backlog: i64) -> i64;
+extern fn tcp_set_nonblocking(fd: i64) -> i64;
+extern fn tcp_close(fd: i64) -> i64;
+
+// ─── Address families ───
+pub const AF_INET: i64 = 2;
+pub const AF_INET6: i64 = 30;
+
+// ─── Socket types ───
+pub const SOCK_STREAM: i64 = 1;
+pub const SOCK_DGRAM: i64 = 2;
+
+// ─── Create a TCP socket ───
+
+pub fn socket() -> i64 {
+    return tcp_socket(AF_INET, SOCK_STREAM, 0);
+}
+
+pub fn bind_v4(fd: i64, port: i64, addr: i64) -> i64 {
+    return tcp_bind(fd, AF_INET, port, addr);
+}
+
+pub fn listen(fd: i64, backlog: i64) -> i64 {
+    return tcp_listen(fd, backlog);
+}
+
+pub fn set_nonblocking(fd: i64) -> i64 {
+    return tcp_set_nonblocking(fd);
+}
+
+pub fn close(fd: i64) -> i64 {
+    return tcp_close(fd);
+}
+
+// ─── io_uring-backed operations (opcodes from @io/uring) ───
+// Accept, connect, send, recv are submitted as io_uring SQEs.
+// See @io/uring package for opcode constants and ring lifecycle.
+
+pub const OP_ACCEPT: i64 = 13;
+pub const OP_CONNECT: i64 = 14;
+pub const OP_SENDMSG: i64 = 9;
+pub const OP_RECVMSG: i64 = 10;
+
+// ─── Socket struct ───
+
+pub struct TcpSocket {
+    fd: i64,
+}
+
+pub fn TcpSocket_new() -> TcpSocket {
+    let fd: i64 = socket();
+    return TcpSocket { fd: fd };
+}
+
+pub fn TcpSocket_valid(s: &TcpSocket) -> i64 {
+    if s.fd >= 0 { 1 } else { 0 }
+}
+
+pub fn TcpSocket_fd(s: &TcpSocket) -> i64 {
+    return s.fd;
+}
+
+pub fn TcpSocket_bind_v4(s: &TcpSocket, port: i64, addr: i64) -> i64 {
+    return bind_v4(s.fd, port, addr);
+}
+
+pub fn TcpSocket_listen(s: &TcpSocket, backlog: i64) -> i64 {
+    return listen(s.fd, backlog);
+}
+
+pub fn TcpSocket_set_nonblocking(s: &TcpSocket) -> i64 {
+    return set_nonblocking(s.fd);
+}
+
+pub fn TcpSocket_close(s: &TcpSocket) -> i64 {
+    return close(s.fd);
+}

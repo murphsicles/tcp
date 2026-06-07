@@ -1,0 +1,8 @@
+[package]
+name = "@net/tcp"
+version = "0.1.0"
+description = "TCP networking for Zeta — socket creation, bind, listen with io_uring-backed accept/connect/send/recv"
+license = "MIT"
+repository = "https://github.com/murphsicles/tcp"
+keywords = ["tcp", "networking", "socket", "io_uring"]
+categories = ["network", "io"]
